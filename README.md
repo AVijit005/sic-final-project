@@ -156,4 +156,12 @@ MIT License - feel free to use and modify!
 
 ## Author
 
-Built with ❤️ for secure email management
+**Avijit Pal**  
+B.Tech CSE - 5th Semester  
+GitHub: [@AVijit005](https://github.com/AVijit005)
+
+Built as a final project for Secure & Intelligent Computing (SIC) course.
+
+---
+
+*Project developed with focus on real-world spam detection using machine learning and modern web technologies.*
