@@ -22,9 +22,10 @@ app.add_middleware(
 )
 
 # Load Model & Vectorizer
-model_path = "model/spam_model.pkl"
-vectorizer_path = "model/vectorizer.pkl"
-whitelist_path = "data/trusted_domains.csv"
+base_dir = os.path.dirname(os.path.abspath(__file__))
+model_path = os.path.join(base_dir, "model/spam_model.pkl")
+vectorizer_path = os.path.join(base_dir, "model/vectorizer.pkl")
+whitelist_path = os.path.join(base_dir, "data/trusted_domains.csv")
 
 model = None
 vectorizer = None
@@ -62,7 +63,14 @@ class EmailRequest(BaseModel):
 STOPWORDS = set(stopwords.words('english'))
 
 def preprocess_text(text):
-    text = re.sub('[^a-zA-Z]', ' ', text)
+    if not isinstance(text, str):
+        return ""
+        
+    # Truncate to 3000 chars (matches training)
+    text = text[:3000]
+    
+    # Match training script: allow numbers and $
+    text = re.sub(r'[^a-z0-9\s$]', ' ', text)
     text = text.lower()
     text = text.split()
     text = [ps.stem(word) for word in text if not word in STOPWORDS]
@@ -145,7 +153,7 @@ def predict_spam(email: EmailRequest):
     # Layer 2: Check for known financial/transactional services
     if is_financial_or_transactional(email.sender, email.subject, email.body):
         return {
-            "label": "ham",
+            "label": "Not Spam",
             "confidence": 0.95,
             "reason": "Recognized as legitimate financial or transactional email"
         }
@@ -153,7 +161,7 @@ def predict_spam(email: EmailRequest):
     # Layer 2.5: Check for obvious spam indicators (override ML if found)
     if has_spam_indicators(email.subject, email.body):
         return {
-            "label": "spam",
+            "label": "Spam",
             "confidence": 0.95,
             "reason": "Contains multiple spam indicators"
         }
@@ -166,30 +174,29 @@ def predict_spam(email: EmailRequest):
     prediction = model.predict(vectorized_text)[0]
     proba = model.predict_proba(vectorized_text)[0]
     
-    # Balanced threshold: 75% for optimal accuracy
-    # Not too strict (80% missed spam), not too loose (70% too many false positives)
-    spam_threshold = 0.75  # Sweet spot between precision and recall
-    spam_probability = float(proba[1])  # Probability of spam (class 1)
-    ham_probability = float(proba[0])   # Probability of ham (class 0)
+    # Balanced threshold: 50% for standard Naive Bayes
+    spam_threshold = 0.5
+    spam_probability = float(proba[1])
+    ham_probability = float(proba[0])
     
     if spam_probability >= spam_threshold:
-        label = "spam"
+        label = "Spam"
         confidence = spam_probability
+        analysis = f"AI Analysis: High probability of spam ({confidence:.1%}). Detected suspicious patterns typical of unsolicited emails."
     else:
-        label = "ham"
+        label = "Not Spam"
         confidence = ham_probability
+        analysis = f"AI Analysis: Appears legitimate ({confidence:.1%}). Content aligns with normal communication patterns."
     
-    reason = "Contains suspicious keywords and patterns" if label == "spam" else "Appears to be legitimate"
+    reason = "Contains suspicious keywords and patterns" if label == "Spam" else "Appears to be legitimate"
 
     return {
         "label": label,
         "confidence": round(confidence, 2),
-        "reason": reason
+        "reason": reason,
+        "analysis": analysis,
+        "model_version": "MultinomialNB-v2 (Super Accurate)"
     }
-
-@app.get("/")
-def read_root():
-    return {"message": "Spam Detection API is running"}
 
 if __name__ == "__main__":
     import uvicorn

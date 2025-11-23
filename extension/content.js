@@ -34,7 +34,7 @@ const injectBanner = (data, prediction) => {
     banner.style.transition = 'all 0.5s ease-in-out';
     banner.style.zIndex = '9999';
 
-    if (prediction.label === 'spam') {
+    if (prediction.label === 'Spam') {
         banner.style.backgroundColor = '#ffebee';
         banner.style.borderLeft = '5px solid #f44336';
         banner.style.color = '#c62828';

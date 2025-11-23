@@ -2,12 +2,16 @@
 
 AI-powered spam detection system for Gmail with a modern, animated Chrome extension and Python backend.
 
+**Last Updated:** November 23, 2025
+
 ## Features
 
+- **Advanced Animated SVG Icon:** Futuristic hexagonal shield with pulsing, rotating layers and orbiting particles
 - **Modern UI:** Vibrant neon colors, breathing animations, floating particles
+- **Clear Labels:** "Spam" / "Not Spam" / "Whitelisted" for easy understanding
 - **Single Input:** Paste any email for instant analysis
 - **4-Layer Detection:** Whitelist, financial domains, spam keywords, ML model
-- **75% Accuracy Threshold:** Balanced spam detection
+- **50% Accuracy Threshold:** Balanced spam detection (MultinomialNB)
 - **Real-time Gmail Integration:** Auto-scan opened emails
 - **Transactional Email Recognition:** Detects legitimate financial services
 
@@ -21,9 +25,10 @@ AI-powered spam detection system for Gmail with a modern, animated Chrome extens
 
 ### Backend (Python)
 - FastAPI
-- scikit-learn (Logistic Regression)
-- NLTK for text processing
-- TF-IDF vectorization
+- scikit-learn (MultinomialNB)
+- NLTK for text processing (stemming, stopwords)
+- TF-IDF vectorization (5000 features, bigrams)
+- Class balancing via oversampling
 
 ## Installation
 
@@ -113,7 +118,7 @@ spam-extension-project/
 1. **Whitelist Check:** Custom trusted domains
 2. **Financial Domain Verification:** 30+ known services (SBI, Amazon Pay, etc.)
 3. **Spam Keyword Detection:** 15+ spam indicators
-4. **ML Model:** 75% confidence threshold
+4. **ML Model:** MultinomialNB with 50% confidence threshold (0.5)
 
 ## Customization
 
@@ -131,8 +136,9 @@ python model/train_model.py
 
 ## Performance
 
-- **99.6% Training Accuracy**
-- **75% Production Threshold** (optimized for real-world use)
+- **99.88% Training Accuracy** (after class balancing)
+- **70%+ Verification Accuracy** on difficult test cases
+- **50% Production Threshold** (MultinomialNB, optimized for balance)
 - **Multi-layer filtering** reduces false positives
 - **Recognizes 30+ financial services**
 

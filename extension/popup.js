@@ -44,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const { sender, subject, body } = parseEmail(emailText);
 
         // UI State: Loading
-        resultBox.classList.remove('hidden', 'visible', 'spam', 'ham', 'whitelisted');
+        resultBox.classList.remove('hidden', 'visible', 'spam', 'safe', 'whitelisted');
         resultBox.classList.add('visible');
         resultContent.classList.add('hidden');
         loaderContainer.classList.remove('hidden');
@@ -58,11 +58,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
+
             // UI State: Result
             loaderContainer.classList.add('hidden');
             resultContent.classList.remove('hidden');
 
-            document.getElementById('label').innerText = data.label.toUpperCase();
+            // Normalize label for CSS class and display
+            let cssClass;
+            let displayLabel;
+
+            if (data.label === 'Spam') {
+                cssClass = 'spam';
+                displayLabel = 'SPAM';
+            } else if (data.label === 'Not Spam') {
+                cssClass = 'safe';
+                displayLabel = 'NOT SPAM';
+            } else if (data.label === 'whitelisted') {
+                cssClass = 'whitelisted';
+                displayLabel = 'WHITELISTED';
+            } else {
+                cssClass = 'safe';
+                displayLabel = data.label.toUpperCase();
+            }
+
+            document.getElementById('label').innerText = displayLabel;
             document.getElementById('confidence').innerText = `Confidence: ${(data.confidence * 100).toFixed(1)}%`;
             document.getElementById('reason').innerText = data.reason;
 
@@ -72,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 confidenceFill.style.width = `${data.confidence * 100}%`;
             }, 100);
 
-            resultBox.classList.add(data.label); // spam, ham, or whitelisted
+            resultBox.classList.add(cssClass);
 
         } catch (error) {
             console.error(error);
