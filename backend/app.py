@@ -82,22 +82,6 @@ def check_whitelist(sender):
         return False
     
     sender = sender.lower()
-    domain = sender.split('@')[-1]
-    
-    if domain in trusted_domains:
-        return True
-    return False
-
-def is_financial_or_transactional(sender, subject, body):
-    """
-    Check if email is from legitimate financial/transactional services.
-    ONLY checks sender domain - keywords alone are not enough!
-    """
-    sender = sender.lower()
-    
-    # Known legitimate financial and service domains
-    trusted_financial_domains = [
-        'sbi.co.in', 'icicibank.com', 'hdfcbank.com', 'axisbank.com',
         'amazonpay.in', 'paytm.com', 'phonepe.com', 'googlepay.com',
         'paypal.com', 'razorpay.com', 'instamojo.com',
         'amazon.in', 'amazon.com', 'flipkart.com',
